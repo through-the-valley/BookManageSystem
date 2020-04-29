@@ -4,13 +4,13 @@
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 
 <generatorConfiguration>
-    <classPathEntry location="C:\Users\dell\.m2\repository\mysql\mysql-connector-java\5.1.44\mysql-connector-java-5.1.44.jar" />
+    <classPathEntry location="D:\project\Code\Java\Class\BookManageSystem\.mvn\wrapper\mysql-connector-java-5.1.44.jar" />
 
     <context id="DB2Tables" targetRuntime="MyBatis3">
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
                         connectionURL="jdbc:mysql://localhost:3306/BookManageSystem"
                         userId="root"
-                        password="123456">
+                        password="root">
         </jdbcConnection>
 
         <javaTypeResolver >
