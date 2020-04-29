@@ -20,6 +20,7 @@
                 <ul class="nav nav-pills">
                     <li role="presentation"><a href="/classLeader/edit">修改个人信息</a></li>
                     <li role="presentation"><a href="/classLeader/check">查看本班订书</a></li>
+                    <li role="presentation"><a href="/quit">退出登录</a></li>
                 </ul>
             </div>
         </div>
@@ -44,11 +45,12 @@
             </tr>
         </table>
         <br>
+
         <form class="form-inline" action="/classLeader/edit" method="post" th:if="${currentChoice}=='edit'">
             <div>编辑信息</div>
             <div class="form-group">
                 <label class="sr-only" for="editCName">班长名称</label>
-                <input type="text" class="form-control" id="editCName" name="userName" placeholder="班长名称">
+                <input type="text" class="form-control" id="editCName" name="username" placeholder="班长名称">
             </div>
             <div class="form-group">
                 <label class="sr-only" for="editCEmail">班长邮箱</label>

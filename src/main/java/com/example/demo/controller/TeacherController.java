@@ -6,6 +6,9 @@ import com.example.demo.mapper.BooksMapper;
 import com.example.demo.mapper.ClassleaderMapper;
 import com.example.demo.mapper.TeacherMapper;
 import com.example.demo.model.*;
+import com.example.demo.service.ApprovalService;
+import com.example.demo.service.BookService;
+import com.example.demo.service.TeacherService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +28,11 @@ import java.util.List;
 @Controller
 public class TeacherController {
     @Autowired
-    private ApprovalMapper approvalMapper;
+    private TeacherService teacherService;
     @Autowired
-    private ClassleaderMapper classleaderMapper;
+    private ApprovalService approvalService;
     @Autowired
-    private TeacherMapper teacherMapper;
-    @Autowired
-    private BooksMapper booksMapper;
+    private BookService bookService;
 
 
 //    编辑个人信息
@@ -39,11 +40,7 @@ public class TeacherController {
     public String edit(Model model,
                        HttpServletRequest request){
         model.addAttribute("currentChoice","edit");
-        int id= 0;
-        id=(int) request.getSession().getAttribute("id");
-        TeacherExample teacherExample=new TeacherExample();
-        teacherExample.createCriteria().andIdEqualTo(id);
-        Teacher teacher=teacherMapper.selectByExample(teacherExample).get(0);
+        Teacher teacher=teacherService.getCurrentTeacher(request);
         model.addAttribute("teacher",teacher);
         request.setAttribute("teacher",teacher);
         return "teacher";
@@ -55,17 +52,8 @@ public class TeacherController {
                        @RequestParam(name = "password")String password,
                        HttpServletRequest request,
                        Model model){
-        int id=0;
-        id=(int) request.getSession().getAttribute("id");
-        TeacherExample teacherExample=new TeacherExample();
-        teacherExample.createCriteria().andIdEqualTo(id);
-        Teacher teacher=teacherMapper.selectByExample(teacherExample).get(0);
-        if(!username.equals("")) teacher.setUsername(username);
-        if(!email.equals("")) teacher.setEmail(email);
-        if(!password.equals("")) teacher.setPassword(password);
-        if(!department.equals("")) teacher.setDepartment(department);
-        teacherMapper.updateByExampleSelective(teacher,teacherExample);
-        return "classleader";
+        teacherService.selfUpdateTeacher(username, email, department, password, request);
+        return "teacher";
     }
 
 //    查看个人订单
@@ -75,15 +63,7 @@ public class TeacherController {
                         @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
                         Model model){
         PageHelper.startPage(pageNum,pageSize);
-        int id=0;
-        id=(int) request.getSession().getAttribute("id");
-        TeacherExample teacherExample=new TeacherExample();
-        teacherExample.createCriteria().andIdEqualTo(id);
-        Teacher teacher=teacherMapper.selectByExample(teacherExample).get(0);
-        int teacherId=teacher.getId();
-        ApprovalExample approvalExample=new ApprovalExample();
-        approvalExample.createCriteria().andTeacherIdEqualTo(teacherId);
-        List<Approval> approvals=approvalMapper.selectByExample(approvalExample);
+        List<Approval> approvals=teacherService.teacherApproval(request);
         PageInfo<Approval> pageInfo=new PageInfo<Approval>(approvals);
         model.addAttribute("currentChoice","check");
         model.addAttribute("pattern","select");
@@ -99,9 +79,7 @@ public String listBooks(@RequestParam(name = "pageNum",defaultValue = "1")int pa
                         @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
                         Model model){
     PageHelper.startPage(pageNum,pageSize);
-    BooksExample booksExample=new BooksExample();
-    booksExample.createCriteria().getAllCriteria();
-    List<Books> books=booksMapper.selectByExample(booksExample);
+    List<Books> books=bookService.allBooks();
     PageInfo<Books> pageInfo=new PageInfo<Books>(books);
     model.addAttribute("currentChoice","allBooks");
     model.addAttribute("pattern","select");
@@ -125,12 +103,7 @@ public String listBooks(@RequestParam(name = "pageNum",defaultValue = "1")int pa
                                 HttpServletRequest request,
                                 Model model){
         model.addAttribute("currentChoice","addApproval");
-        int id=0;
-        id=(int) request.getSession().getAttribute("id");
-        Approval approval=new Approval();
-        approval.setBookId(bookId);approval.setQuantity(quantity);approval.setTeacherId(id);
-        approval.setToclass(toclass);approval.setPass(2);
-        approvalMapper.insertSelective(approval);
+        approvalService.add(bookId,quantity,toclass,request);
         return "teacher";
     }
 }

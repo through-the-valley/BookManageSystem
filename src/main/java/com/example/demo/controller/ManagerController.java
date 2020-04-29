@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.mapper.*;
 import com.example.demo.model.*;
+import com.example.demo.service.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -20,22 +22,23 @@ import java.util.List;
 @Controller
 public class ManagerController {
     @Autowired
-    private TeacherMapper teacherMapper;
+    private BookService bookService;
     @Autowired
-    private ClassleaderMapper classleaderMapper;
+    private ApprovalService approvalService;
     @Autowired
-    private BooksMapper booksMapper;
+    private TeacherService teacherService;
     @Autowired
-    private ApprovalMapper approvalMapper;
+    private ClassLeaderService classLeaderService;
+    @Autowired
+    private SessionService sessionService;
 
     @GetMapping("/manager/allBooks")
     public String listBooks(@RequestParam(name = "pageNum",defaultValue = "1")int pageNum,
-                        @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
-                        Model model){
+                            @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
+                            Model model,
+                            HttpServletRequest request){
         PageHelper.startPage(pageNum,pageSize);
-        BooksExample booksExample=new BooksExample();
-        booksExample.createCriteria().getAllCriteria();
-        List<Books> books=booksMapper.selectByExample(booksExample);
+        List<Books> books=bookService.allBooks();
         PageInfo<Books> pageInfo=new PageInfo<Books>(books);
         model.addAttribute("currentChoice","allBooks");
         model.addAttribute("pattern","select");
@@ -46,6 +49,7 @@ public class ManagerController {
     }
     @GetMapping("/manager/changeBookNum")
     public String changeBookNum(Model model){
+
         model.addAttribute("currentChoice","allBooks");
         model.addAttribute("pattern","changeBookNum");
         return "manager";
@@ -53,12 +57,7 @@ public class ManagerController {
     @PostMapping("/manager/changeBookNum")
     public String doChangeBookNum(@RequestParam(name = "id")int id,
                                   @RequestParam(name = "bookQuantity")int bookQuantity){
-        BooksExample booksExample=new BooksExample();
-        booksExample.createCriteria().andIdEqualTo(id);
-        List<Books> books=booksMapper.selectByExample(booksExample);
-        Books book=books.get(0);
-        book.setBookQuantity(bookQuantity);
-        booksMapper.updateByExampleSelective(book,booksExample);
+        bookService.changeNum(id, bookQuantity);
         return "manager";
     }
     @GetMapping("/manager/addBooks")
@@ -71,10 +70,7 @@ public class ManagerController {
                              @RequestParam(name = "bookQuantity")int bookQuantity,
                              @RequestParam(name = "press")String press,
                              @RequestParam(name = "price")double price){
-        BooksExample booksExample=new BooksExample();
-        Books book=new Books();
-        book.setBookQuantity(bookQuantity);book.setBookName(bookName);book.setPress(press);book.setPrice(price);
-        booksMapper.insertSelective(book);
+        bookService.addBook(bookName, bookQuantity, press, price);
         return "manager";
     }
     @GetMapping("/manager/deleteBooks")
@@ -84,9 +80,7 @@ public class ManagerController {
     }
     @PostMapping("/manager/deleteBooks")
     public String doDeleteBooks(@RequestParam(name = "id")int id){
-        BooksExample booksExample=new BooksExample();
-        booksExample.createCriteria().andIdEqualTo(id);
-        booksMapper.deleteByExample(booksExample);
+        bookService.deleteBook(id);
         return "manager";
     }
 
@@ -96,9 +90,7 @@ public class ManagerController {
                                 @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
                                 Model model){
         PageHelper.startPage(pageNum,pageSize);
-        ApprovalExample approvalExample=new ApprovalExample();
-        approvalExample.createCriteria().getAllCriteria();
-        List<Approval> approvals=approvalMapper.selectByExample(approvalExample);
+        List<Approval> approvals=approvalService.allApproval();
         PageInfo<Approval> pageInfo=new PageInfo<Approval>(approvals);
         model.addAttribute("currentChoice","allApprovals");
         model.addAttribute("pattern","select");
@@ -111,23 +103,7 @@ public class ManagerController {
     public String changeApproval(Model model,
                                  @RequestParam(name = "approvalId")int approvalId,
                                  @RequestParam(name = "act")int act){
-        ApprovalExample approvalExample=new ApprovalExample();
-        approvalExample.createCriteria().andIdEqualTo(approvalId);
-        List<Approval> approvals=approvalMapper.selectByExample(approvalExample);
-        Approval approval=approvals.get(0);
-        switch (act){
-            case 1:
-                approval.setPass(1);
-                approvalMapper.updateByExampleSelective(approval,approvalExample);
-                break;
-            case 2:
-                approval.setPass(2);
-                approvalMapper.updateByExampleSelective(approval,approvalExample);
-                break;
-            case 0:
-                approvalMapper.deleteByExample(approvalExample);
-                break;
-        }
+        approvalService.changeApproval(approvalId,act);
         return "manager";
     }
 
@@ -137,9 +113,7 @@ public class ManagerController {
                                 @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
                                 Model model){
         PageHelper.startPage(pageNum,pageSize);
-        TeacherExample teacherExample=new TeacherExample();
-        teacherExample.createCriteria().getAllCriteria();
-        List<Teacher> teachers=teacherMapper.selectByExample(teacherExample);
+        List<Teacher> teachers=teacherService.allTeacher();
         PageInfo<Teacher> pageInfo=new PageInfo<Teacher>(teachers);
         model.addAttribute("currentChoice","allTeachers");
         model.addAttribute("pattern","select");
@@ -153,9 +127,7 @@ public class ManagerController {
                              @RequestParam(name = "email")String email,
                              @RequestParam(name = "password")String password,
                              @RequestParam(name = "department")String department){
-        Teacher teacher=new Teacher();
-        teacher.setUsername(userName);teacher.setEmail(email);teacher.setDepartment(department);teacher.setPassword(password);
-        teacherMapper.insertSelective(teacher);
+        teacherService.Add(userName, email, password, department);
         return "manager";
     }
     @PostMapping("/manager/editTeacher")
@@ -164,21 +136,12 @@ public class ManagerController {
                                 @RequestParam(name = "email",defaultValue = "")String email,
                                 @RequestParam(name = "password",defaultValue = "")String password,
                                 @RequestParam(name = "department",defaultValue = "")String department){
-        TeacherExample teacherExample=new TeacherExample();
-        teacherExample.createCriteria().andIdEqualTo(id);
-        Teacher teacher=teacherMapper.selectByExample(teacherExample).get(0);
-        if(!userName.equals("")) teacher.setUsername(userName);
-        if(!email.equals("")) teacher.setEmail(email);
-        if(!password.equals("")) teacher.setPassword(password);
-        if(!department.equals("")) teacher.setDepartment(department);
-        teacherMapper.updateByExampleSelective(teacher,teacherExample);
+        teacherService.upperUpdate(id, userName, email, password, department);
         return "manager";
     }
     @PostMapping("/manager/deleteTeacher")
     public String doDeleteTeacher(@RequestParam(name = "id")int id){
-        TeacherExample teacherExample=new TeacherExample();
-        teacherExample.createCriteria().andIdEqualTo(id);
-        teacherMapper.deleteByExample(teacherExample);
+        teacherService.delete(id);
         return "manager";
     }
 
@@ -188,9 +151,7 @@ public class ManagerController {
                                @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
                                Model model){
         PageHelper.startPage(pageNum,pageSize);
-        ClassleaderExample classleaderExample=new ClassleaderExample();
-        classleaderExample.createCriteria().getAllCriteria();
-        List<Classleader> classleaders=classleaderMapper.selectByExample(classleaderExample);
+        List<Classleader> classleaders=classLeaderService.listClassLeader();
         PageInfo<Classleader> pageInfo=new PageInfo<Classleader>(classleaders);
         model.addAttribute("currentChoice","allClassLeaders");
         model.addAttribute("pattern","select");
@@ -205,10 +166,7 @@ public class ManagerController {
                                     @RequestParam(name = "password")String password,
                                     @RequestParam(name = "classid")String classid,
                                     @RequestParam(name = "department")String department){
-        Classleader classleader=new Classleader();
-        classleader.setUsername(userName);classleader.setEmail(email);classleader.setDepartment(department);
-        classleader.setPassword(password);classleader.setClassid(classid);
-        classleaderMapper.insertSelective(classleader);
+        classLeaderService.add(userName, email, password, classid, department);
         return "manager";
     }
     @PostMapping("/manager/editClassLeader")
@@ -218,22 +176,12 @@ public class ManagerController {
                                 @RequestParam(name = "password",defaultValue = "")String password,
                                 @RequestParam(name = "department",defaultValue = "")String department,
                                 @RequestParam(name = "classid",defaultValue = "")String classid){
-        ClassleaderExample classleaderExample=new ClassleaderExample();
-        classleaderExample.createCriteria().andIdEqualTo(id);
-        Classleader classleader=classleaderMapper.selectByExample(classleaderExample).get(0);
-        if(!userName.equals("")) classleader.setUsername(userName);
-        if(!email.equals("")) classleader.setEmail(email);
-        if(!password.equals("")) classleader.setPassword(password);
-        if(!department.equals("")) classleader.setDepartment(department);
-        if(!classid.equals("")) classleader.setClassid(classid);
-        classleaderMapper.updateByExampleSelective(classleader,classleaderExample);
+        classLeaderService.upperUpdate(id, userName, email, password, department, classid);
         return "manager";
     }
     @PostMapping("/manager/deleteClassLeader")
     public String doDeleteClassLeader(@RequestParam(name = "id")int id){
-        ClassleaderExample classleaderExample=new ClassleaderExample();
-        classleaderExample.createCriteria().andIdEqualTo(id);
-        classleaderMapper.deleteByExample(classleaderExample);
+        classLeaderService.delete(id);
         return "manager";
     }
 }

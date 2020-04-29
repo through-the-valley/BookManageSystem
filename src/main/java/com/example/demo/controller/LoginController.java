@@ -89,4 +89,11 @@ public class LoginController {
 
         return "redirect:/login";
     }
+
+    @GetMapping("/quit")
+    public String quit(HttpServletRequest request){
+        request.getSession().removeAttribute("username");
+        request.getSession().removeAttribute("id");
+        return "redirect:/";
+    }
 }

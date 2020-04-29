@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.mapper.ApprovalMapper;
 import com.example.demo.mapper.ClassleaderMapper;
 import com.example.demo.model.*;
+import com.example.demo.service.ClassLeaderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,41 +23,25 @@ import java.util.List;
 @Controller
 public class ClassleaderController {
     @Autowired
-    private ApprovalMapper approvalMapper;
-    @Autowired
-    private ClassleaderMapper classleaderMapper;
-
+    private ClassLeaderService classLeaderService;
 //    查看和修改个人信息
     @GetMapping("/classLeader/edit")
     public String edit(Model model,HttpServletRequest request){
         model.addAttribute("currentChoice","edit");
-        int id= 0;
-        id=(int) request.getSession().getAttribute("id");
-        ClassleaderExample classleaderExample=new ClassleaderExample();
-        classleaderExample.createCriteria().andIdEqualTo(id);
-        Classleader classleader=classleaderMapper.selectByExample(classleaderExample).get(0);
+        Classleader classleader=classLeaderService.getCurrentClassLeader(request);
         model.addAttribute("classleader",classleader);
         request.setAttribute("classleader",classleader);
         return "classleader";
     }
     @PostMapping("/classLeader/edit")
-    public String edit(@RequestParam(name = "username")String username,
-                       @RequestParam(name = "email")String email,
-                       @RequestParam(name = "classid")String classid,
-                       @RequestParam(name = "department")String department,
-                       @RequestParam(name = "password")String password,
+    public String edit(@RequestParam(name = "username",defaultValue = "")String username,
+                       @RequestParam(name = "email",defaultValue = "")String email,
+                       @RequestParam(name = "classid",defaultValue = "")String classid,
+                       @RequestParam(name = "department",defaultValue = "")String department,
+                       @RequestParam(name = "password",defaultValue = "")String password,
                        HttpServletRequest request,
                        Model model){
-        int id= (int) request.getSession().getAttribute("id");
-        ClassleaderExample classleaderExample=new ClassleaderExample();
-        classleaderExample.createCriteria().andIdEqualTo(id);
-        Classleader classleader=classleaderMapper.selectByExample(classleaderExample).get(0);
-        if(!username.equals("")) classleader.setUsername(username);
-        if(!email.equals("")) classleader.setEmail(email);
-        if(!password.equals("")) classleader.setPassword(password);
-        if(!department.equals("")) classleader.setDepartment(department);
-        if(!classid.equals("")) classleader.setClassid(classid);
-        classleaderMapper.updateByExampleSelective(classleader,classleaderExample);
+        classLeaderService.selfUpdateClassLeader(request, username, email, classid, department, password);
         return "classleader";
     }
 
@@ -67,14 +52,8 @@ public class ClassleaderController {
                         @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
                         Model model){
         PageHelper.startPage(pageNum,pageSize);
-        int id= (int) request.getSession().getAttribute("id");
-        ClassleaderExample classleaderExample=new ClassleaderExample();
-        classleaderExample.createCriteria().andIdEqualTo(id);
-        Classleader classleader=classleaderMapper.selectByExample(classleaderExample).get(0);
-        String classid=classleader.getClassid();
-        ApprovalExample approvalExample=new ApprovalExample();
-        approvalExample.createCriteria().andToclassEqualTo(classid);
-        List<Approval> approvals=approvalMapper.selectByExample(approvalExample);
+        Classleader classleader=classLeaderService.getCurrentClassLeader(request);
+        List<Approval> approvals=classLeaderService.listApproval(request);
         PageInfo<Approval> pageInfo=new PageInfo<Approval>(approvals);
         model.addAttribute("currentChoice","check");
         model.addAttribute("pattern","select");
