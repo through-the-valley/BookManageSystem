@@ -11,6 +11,7 @@ import java.util.List;
  * @Author dell
  * @create 2020/4/29 10:53
  */
+//分别用于获取登陆用户，获取登陆用户id，获取登陆用户classid，编辑个人信息，查看本班订单，查看所有班长，管理员新增，更新，删除班长
 public interface ClassLeaderService {
     Classleader getCurrentClassLeader(HttpServletRequest request);
     int getCurrentClassLeaderId(HttpServletRequest request);

@@ -20,26 +20,36 @@ import java.util.List;
  * @Author dell
  * @create 2020/4/27 23:29
  */
+//登陆的controller
 @Controller
 public class LoginController {
-
+//    处理从主页的登陆按钮传来的请求，转到login页面
     @RequestMapping(value = "/login",method = RequestMethod.GET)
     public String login(){
         return "login";
     }
-
+//注入对应的mapper。其实应该传service，不过没有复杂的业务逻辑，所以没什么影响。
     @Autowired
     private ManagerMapper managerMapper;
     @Autowired
     private TeacherMapper teacherMapper;
     @Autowired
     private ClassleaderMapper classleaderMapper;
+//    处理登陆表单
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public String doLogin(@RequestParam String email,
                           @RequestParam String password,
                           @RequestParam String identity,
                           HttpServletRequest request,
                           Model model){
+/**
+ * 首先根据选择的身份来判断要去哪个数据库寻找。采用switch语句
+ * 使用mybatis和mbg来操作数据库。操作方式不难，一般我们创建xxxexample，用createCriteria()方法，里面有丰富的选项。一般用andxxxequalto即可
+ * 返回的list我们先用size确定下是否无结果。无结果就是用户名或密码无效，将用户重定向到login界面。
+ * 不无效的情况下。因为id是自增即唯一的，所以从list中取第一个就是我们需要的用户，将其用户名和id放入session用于后续的功能如根据id查找。
+ * 其实可以直接把用户对象放进session中更方便点，这里没有这么做
+ * 存好后转到对应身份的界面
+ */
         switch (identity) {
             case "管理员":
                 ManagerExample managerExample = new ManagerExample();
@@ -90,6 +100,7 @@ public class LoginController {
         return "redirect:/login";
     }
 
+//    处理退出登录界面。删除session的值并返回到登录界面
     @GetMapping("/quit")
     public String quit(HttpServletRequest request){
         request.getSession().removeAttribute("username");

@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
  */
 @Controller
 public class index {
+//    返回首页
     @GetMapping("/")
-    public String index(){
+    public String firstPage(){
         return "index";
     }
 }

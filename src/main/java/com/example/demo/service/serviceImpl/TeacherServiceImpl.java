@@ -23,6 +23,7 @@ public class TeacherServiceImpl implements TeacherService {
     private TeacherMapper teacherMapper;
     @Autowired
     private ApprovalMapper approvalMapper;
+//    跟班长类似，有获取当前用户，获取用户id
     @Override
     public Teacher getCurrentTeacher(HttpServletRequest request) {
         int id= 0;
@@ -40,7 +41,7 @@ public class TeacherServiceImpl implements TeacherService {
         teacherExample.createCriteria().andIdEqualTo(id);
         return teacherMapper.selectByExample(teacherExample).get(0).getId();
     }
-
+//  也是自己编辑自己信息，先获取id然后创建旧副本这样的方法
     @Override
     public void selfUpdateTeacher(String username, String email, String department, String password, HttpServletRequest request) {
         int id= 0;
@@ -54,21 +55,21 @@ public class TeacherServiceImpl implements TeacherService {
         if(!department.equals("")) teacher.setDepartment(department);
         teacherMapper.updateByExampleSelective(teacher,teacherExample);
     }
-
+//查看所有教师
     @Override
     public List<Teacher> allTeacher() {
         TeacherExample teacherExample=new TeacherExample();
         teacherExample.createCriteria().getAllCriteria();
         return teacherMapper.selectByExample(teacherExample);
     }
-
+//  管理员增加教师
     @Override
     public void Add(String userName, String email, String password, String department) {
         Teacher teacher=new Teacher();
         teacher.setUsername(userName);teacher.setEmail(email);teacher.setDepartment(department);teacher.setPassword(password);
         teacherMapper.insertSelective(teacher);
     }
-
+//管理员编辑教师
     @Override
     public void upperUpdate(int id,String userName, String email, String password, String department) {
         TeacherExample teacherExample=new TeacherExample();
@@ -80,14 +81,14 @@ public class TeacherServiceImpl implements TeacherService {
         if(!department.equals("")) teacher.setDepartment(department);
         teacherMapper.updateByExampleSelective(teacher,teacherExample);
     }
-
+//管理员删除教师
     @Override
     public void delete(int id) {
         TeacherExample teacherExample=new TeacherExample();
         teacherExample.createCriteria().andIdEqualTo(id);
         teacherMapper.deleteByExample(teacherExample);
     }
-
+//  教师查看自己的订单
     @Override
     public List<Approval> teacherApproval(HttpServletRequest request) {
         Teacher teacher=getCurrentTeacher(request);

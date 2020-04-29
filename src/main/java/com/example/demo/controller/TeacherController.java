@@ -26,6 +26,8 @@ import java.util.List;
  * @create 2020/4/28 13:35
  */
 @Controller
+//teacher的controller
+//因为classleader中讲了大体思路，重复的不再赘述
 public class TeacherController {
     @Autowired
     private TeacherService teacherService;
@@ -35,7 +37,7 @@ public class TeacherController {
     private BookService bookService;
 
 
-//    编辑个人信息
+//    编辑个人信息，用于激活当前个人信息和编辑用的表单，随后更新model和session中的信息
     @GetMapping("/teacher/edit")
     public String edit(Model model,
                        HttpServletRequest request){
@@ -56,7 +58,7 @@ public class TeacherController {
         return "teacher";
     }
 
-//    查看个人订单
+//    查看个人订单。因为是列表所以同样需要分页。原理和班长处同。并且打开显示列表开关
     @GetMapping("/teacher/check")
     public String check(HttpServletRequest request,
                         @RequestParam(name = "pageNum",defaultValue = "1")int pageNum,
@@ -73,7 +75,7 @@ public class TeacherController {
         return "teacher";
     }
 
-//    查看图书信息
+//    查看教材信息。与查看个人订单雷同。
 @GetMapping("/teacher/allBooks")
 public String listBooks(@RequestParam(name = "pageNum",defaultValue = "1")int pageNum,
                         @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
@@ -90,7 +92,7 @@ public String listBooks(@RequestParam(name = "pageNum",defaultValue = "1")int pa
 }
 
 
-//    增加订单
+//    增加订单。同样采用了get打开开关，post提交表单结合的方式。
     @GetMapping("/teacher/addApproval")
     public String addApproval(Model model){
         model.addAttribute("currentChoice","addApproval");

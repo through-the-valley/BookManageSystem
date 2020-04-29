@@ -21,13 +21,14 @@ public class ApprovalServiceImpl implements ApprovalService {
     private ApprovalMapper approvalMapper;
     @Autowired
     private TeacherService teacherService;
+//    展示所有订单
     @Override
     public List<Approval> allApproval() {
         ApprovalExample approvalExample=new ApprovalExample();
         approvalExample.createCriteria().getAllCriteria();
         return approvalMapper.selectByExample(approvalExample);
     }
-
+//  订单状态更新。1通过，2不通过，0删除
     @Override
     public void changeApproval(int id, int act) {
         ApprovalExample approvalExample=new ApprovalExample();
@@ -48,7 +49,7 @@ public class ApprovalServiceImpl implements ApprovalService {
                 break;
         }
     }
-
+//教师新增订单
     @Override
     public void add(int bookId, int quantity, String toclass, HttpServletRequest request) {
         int id=teacherService.getCurrentTeacherId(request);

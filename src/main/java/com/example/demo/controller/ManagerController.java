@@ -19,6 +19,7 @@ import java.util.List;
  * @Author dell
  * @create 2020/4/28 13:35
  */
+//管理员的controller
 @Controller
 public class ManagerController {
     @Autowired
@@ -29,9 +30,8 @@ public class ManagerController {
     private TeacherService teacherService;
     @Autowired
     private ClassLeaderService classLeaderService;
-    @Autowired
-    private SessionService sessionService;
 
+//  分页显示所有教材
     @GetMapping("/manager/allBooks")
     public String listBooks(@RequestParam(name = "pageNum",defaultValue = "1")int pageNum,
                             @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
@@ -47,6 +47,7 @@ public class ManagerController {
         model.addAttribute("books",books);
         return "manager";
     }
+//    更改教材库存。用currentChoice控制更新表单
     @GetMapping("/manager/changeBookNum")
     public String changeBookNum(Model model){
 
@@ -60,6 +61,7 @@ public class ManagerController {
         bookService.changeNum(id, bookQuantity);
         return "manager";
     }
+//    新增库存教材。原理同上
     @GetMapping("/manager/addBooks")
     public String addBooks(Model model){
         model.addAttribute("pattern","addBooks");
@@ -73,6 +75,7 @@ public class ManagerController {
         bookService.addBook(bookName, bookQuantity, press, price);
         return "manager";
     }
+//    删除库存教材。原理同上
     @GetMapping("/manager/deleteBooks")
     public String deleteBooks(Model model){
         model.addAttribute("pattern","deleteBooks");
@@ -84,7 +87,7 @@ public class ManagerController {
         return "manager";
     }
 
-
+//  分页显示所有订单
     @GetMapping("/manager/allApprovals")
     public String listApprovals(@RequestParam(name = "pageNum",defaultValue = "1")int pageNum,
                                 @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
@@ -99,6 +102,7 @@ public class ManagerController {
         model.addAttribute("approvals",approvals);
         return "manager";
     }
+//    更改订单状态。通过或未通过或删除订单
     @PostMapping("/manager/changeApproval")
     public String changeApproval(Model model,
                                  @RequestParam(name = "approvalId")int approvalId,
@@ -107,7 +111,7 @@ public class ManagerController {
         return "manager";
     }
 
-
+//展示所有教师
     @GetMapping("/manager/allTeachers")
     public String listTeachers(@RequestParam(name = "pageNum",defaultValue = "1")int pageNum,
                                 @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
@@ -122,6 +126,7 @@ public class ManagerController {
         model.addAttribute("teachers",teachers);
         return "manager";
     }
+//    添加教师
     @PostMapping("/manager/addTeacher")
     public String doAddTeacher(@RequestParam(name = "userName")String userName,
                              @RequestParam(name = "email")String email,
@@ -130,6 +135,7 @@ public class ManagerController {
         teacherService.Add(userName, email, password, department);
         return "manager";
     }
+//    编辑教师，这里编辑跟教师自己编辑自己不同，需要通过id查找到对应的目标。所以id是必填的，下面编辑班长一个道理
     @PostMapping("/manager/editTeacher")
     public String doEditTeacher(@RequestParam(name = "id")int id,
                                 @RequestParam(name = "userName",defaultValue = "")String userName,
@@ -139,13 +145,14 @@ public class ManagerController {
         teacherService.upperUpdate(id, userName, email, password, department);
         return "manager";
     }
+//    删除教师
     @PostMapping("/manager/deleteTeacher")
     public String doDeleteTeacher(@RequestParam(name = "id")int id){
         teacherService.delete(id);
         return "manager";
     }
 
-
+//  跟教师一个模子
     @GetMapping("/manager/allClassLeaders")
     public String listClassLeaders(@RequestParam(name = "pageNum",defaultValue = "1")int pageNum,
                                @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,

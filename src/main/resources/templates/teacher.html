@@ -10,6 +10,9 @@
     <script src="../static/js/bootstrap.min.js" type="application/javascript"></script>
 </head>
 <body>
+<!--
+    与班长中重复的不再赘述
+-->
     <div class="page-header">
         <h1>Welcome <small th:text="${session.username}"></small> <small>当前身份为教师</small></h1>
     </div>
@@ -27,7 +30,7 @@
             </div>
         </div>
 
-        <!-- 仅当currentChoice为allTeachers时才显示的表格。显示所有教师-->
+        <!-- 仅当currentChoice为edit时才显示的表格。显示当前个人信息，并显示更新用的表单-->
         <table class="table table-bordered" th:if="${currentChoice}=='edit'">
             <tr>
                 <td >教师编号</td>
@@ -105,7 +108,7 @@
         </table>
 
 
-        <!--  通过pagehelper工具进行的分页      -->
+        <!--  通过pagehelper工具进行的分页。这里因为有多处用到分页所以用pattern加以区分      -->
         <ul class="pagination" id="page_ul" th:if="${pattern}=='select'" >
             <li th:if="${pageInfo.pageNum!=1}">
                 <a th:href="@{${requestPreUrl}(pageNum=1)}">首页</a>

@@ -12,6 +12,7 @@ import java.util.List;
  * @Author dell
  * @create 2020/4/29 11:18
  */
+//分别用于获取登陆用户，获取登陆用户id。查看所有教师，教师查看个人订单，编辑个人信息，管理员增加，更新，删除教师
 public interface TeacherService {
     Teacher getCurrentTeacher(HttpServletRequest request);
 

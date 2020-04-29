@@ -17,12 +17,14 @@ import java.util.List;
  * @Author dell
  * @create 2020/4/29 10:54
  */
+//对数据库操作的模子就是创建xxxExample，通过createCriteria选择自己所需要的筛选方式。最后用xxxmapper.xxxbyExample，注意这样返回的一般都是list
 @Service
 public class ClassLeaderServiceImpl implements ClassLeaderService {
     @Autowired
     private ClassleaderMapper classleaderMapper;
     @Autowired
     private ApprovalMapper approvalMapper;
+//    通过session获取id然后查找班长
     @Override
     public Classleader getCurrentClassLeader(HttpServletRequest request) {
         int id= 0;
@@ -32,11 +34,14 @@ public class ClassLeaderServiceImpl implements ClassLeaderService {
         return classleaderMapper.selectByExample(classleaderExample).get(0);
     }
 
+//    通过session获取id，需要类型转换
     @Override
     public int getCurrentClassLeaderId(HttpServletRequest request) {
         return (int) request.getSession().getAttribute("id");
     }
 
+//    编辑个人信息，此时是对自己操作，不需要提交id。
+//    创建旧信息的副本。传过来值不为""时就进行对应的更新。
     @Override
     public void selfUpdateClassLeader(HttpServletRequest request,
                                       String username,
@@ -57,6 +62,7 @@ public class ClassLeaderServiceImpl implements ClassLeaderService {
         classleaderMapper.updateByExampleSelective(classleader,classleaderExample);
     }
 
+//    通过id找到班长然后获取classid，用于后续查看班级订单
     @Override
     public String getCurrentClassLeaderClassId(HttpServletRequest request) {
         int id= 0;
@@ -65,7 +71,7 @@ public class ClassLeaderServiceImpl implements ClassLeaderService {
         classleaderExample.createCriteria().andIdEqualTo(id);
         return classleaderMapper.selectByExample(classleaderExample).get(0).getClassid();
     }
-
+//通过classid找到班级订单
     @Override
     public List<Approval> listApproval(HttpServletRequest request) {
         String classid=getCurrentClassLeaderClassId(request);
@@ -74,13 +80,14 @@ public class ClassLeaderServiceImpl implements ClassLeaderService {
         return approvalMapper.selectByExample(approvalExample);
     }
 
+//    getAllCriteria用于获取所有记录
     @Override
     public List<Classleader> listClassLeader() {
         ClassleaderExample classleaderExample=new ClassleaderExample();
         classleaderExample.createCriteria().getAllCriteria();
         return classleaderMapper.selectByExample(classleaderExample);
     }
-
+//管理员新增班长。这种都是需要通过id来确定对象的
     @Override
     public void add(String userName, String email, String password, String classid, String department) {
         Classleader classleader=new Classleader();
@@ -88,7 +95,7 @@ public class ClassLeaderServiceImpl implements ClassLeaderService {
         classleader.setPassword(password);classleader.setClassid(classid);
         classleaderMapper.insertSelective(classleader);
     }
-
+//管理员更新班长
     @Override
     public void upperUpdate(int id, String userName, String email, String password, String department, String classid) {
         ClassleaderExample classleaderExample=new ClassleaderExample();
@@ -101,7 +108,7 @@ public class ClassLeaderServiceImpl implements ClassLeaderService {
         if(!classid.equals("")) classleader.setClassid(classid);
         classleaderMapper.updateByExampleSelective(classleader,classleaderExample);
     }
-
+// 管理员删除班长
     @Override
     public void delete(int id) {
         ClassleaderExample classleaderExample=new ClassleaderExample();
